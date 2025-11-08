@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj": {}
+    "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj": {
+    "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj",
         "projectName": "Planner.Tests",
-        "projectPath": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj",
+        "projectPath": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Tests\\Planner.Tests.csproj",
         "packagesPath": "C:\\Users\\eduar\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Tests\\obj\\",
+        "outputPath": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\eduar\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj": {
-                "projectPath": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj"
+              "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj": {
+                "projectPath": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj"
               }
             }
           }
@@ -88,14 +88,14 @@
         }
       }
     },
-    "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj": {
+    "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj",
+        "projectUniqueName": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj",
         "projectName": "Planner.Web",
-        "projectPath": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj",
+        "projectPath": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\Planner.Web.csproj",
         "packagesPath": "C:\\Users\\eduar\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\eduar\\Desktop\\Faculdade\\planner-scheduler-app\\src\\Planner.Web\\obj\\",
+        "outputPath": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\src\\Planner.Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\eduar\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -135,9 +135,19 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[9.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "target": "Package",
