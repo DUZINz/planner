@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Planner.Web.props" />
+</Project>

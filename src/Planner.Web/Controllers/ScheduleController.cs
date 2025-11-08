@@ -1,64 +1,73 @@
 using Microsoft.AspNetCore.Mvc;
 using Planner.Web.Models;
 using Planner.Web.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace Planner.Web.Controllers
+namespace Planner.Web.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ScheduleController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ScheduleController : ControllerBase
+    private readonly IEventService _eventService;
+    private readonly ILogger<ScheduleController> _logger;
+
+    public ScheduleController(IEventService eventService, ILogger<ScheduleController> logger)
     {
-        private readonly IEventService _eventService;
+        _eventService = eventService;
+        _logger = logger;
+    }
 
-        public ScheduleController(IEventService eventService)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+    {
+        var events = await _eventService.GetAllEventsAsync();
+        return Ok(events);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Event>> GetEvent(int id)
+    {
+        var eventItem = await _eventService.GetEventByIdAsync(id);
+        if (eventItem == null)
         {
-            _eventService = eventService;
+            return NotFound();
+        }
+        return Ok(eventItem);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Event>> CreateEvent(Event eventItem)
+    {
+        var created = await _eventService.CreateEventAsync(eventItem);
+        return CreatedAtAction(nameof(GetEvent), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEvent(int id, Event eventItem)
+    {
+        if (id != eventItem.Id)
+        {
+            return BadRequest();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetAllEvents()
+        var result = await _eventService.UpdateEventAsync(eventItem);
+        if (!result)
         {
-            var events = await _eventService.GetAllEvents();
-            return Ok(events);
+            return NotFound();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEventById(int id)
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEvent(int id)
+    {
+        var result = await _eventService.DeleteEventAsync(id);
+        if (!result)
         {
-            var eventItem = await _eventService.GetEventById(id);
-            if (eventItem == null)
-            {
-                return NotFound();
-            }
-            return Ok(eventItem);
+            return NotFound();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Event>> CreateEvent(Event eventItem)
-        {
-            var createdEvent = await _eventService.CreateEvent(eventItem);
-            return CreatedAtAction(nameof(GetEventById), new { id = createdEvent.Id }, createdEvent);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, Event eventItem)
-        {
-            if (id != eventItem.Id)
-            {
-                return BadRequest();
-            }
-
-            await _eventService.UpdateEvent(eventItem);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(int id)
-        {
-            await _eventService.DeleteEvent(id);
-            return NoContent();
-        }
+        return NoContent();
     }
 }

@@ -1,25 +1,35 @@
 @page
-@model IndexModel
+@model Planner.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Planner/Scheduler";
+    ViewData["Title"] = "Planner Scheduler";
 }
 
-<h1>Welcome to the Planner/Scheduler Application</h1>
-
-<p>This application allows you to manage your events and schedules efficiently.</p>
-
-<div>
-    <a href="/Schedule/Create" class="btn btn-primary">Create New Event</a>
-    <a href="/Schedule" class="btn btn-secondary">View All Events</a>
+<div class="text-center">
+    <h1 class="display-4">Planner Scheduler</h1>
+    <p>Gerencie seus eventos e compromissos</p>
 </div>
 
-<hr />
-
-<h2>Upcoming Events</h2>
-<div id="upcoming-events">
-    <!-- Upcoming events will be dynamically loaded here -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Próximos Eventos</h2>
+        <div id="calendar"></div>
+        
+        @if (Model.Events.Any())
+        {
+            <ul class="list-group mt-3">
+                @foreach (var evt in Model.Events)
+                {
+                    <li class="list-group-item">
+                        <h5>@evt.Title</h5>
+                        <p>@evt.Description</p>
+                        <small>@evt.StartDate.ToString("dd/MM/yyyy HH:mm") - @evt.EndDate.ToString("dd/MM/yyyy HH:mm")</small>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">Nenhum evento cadastrado.</p>
+        }
+    </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/site.js"></script>
-}
