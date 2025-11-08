@@ -1,0 +1,25 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Planner/Scheduler";
+}
+
+<h1>Welcome to the Planner/Scheduler Application</h1>
+
+<p>This application allows you to manage your events and schedules efficiently.</p>
+
+<div>
+    <a href="/Schedule/Create" class="btn btn-primary">Create New Event</a>
+    <a href="/Schedule" class="btn btn-secondary">View All Events</a>
+</div>
+
+<hr />
+
+<h2>Upcoming Events</h2>
+<div id="upcoming-events">
+    <!-- Upcoming events will be dynamically loaded here -->
+</div>
+
+@section Scripts {
+    <script src="~/js/site.js"></script>
+}
