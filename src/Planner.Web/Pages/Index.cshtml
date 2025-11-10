@@ -4,32 +4,89 @@
     ViewData["Title"] = "Planner Scheduler";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Planner Scheduler</h1>
-    <p>Gerencie seus eventos e compromissos</p>
-</div>
+<h1>Planner Scheduler</h1>
+<p>Gerencie seus eventos e compromissos</p>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h2>Próximos Eventos</h2>
-        <div id="calendar"></div>
-        
-        @if (Model.Events.Any())
-        {
-            <ul class="list-group mt-3">
-                @foreach (var evt in Model.Events)
-                {
-                    <li class="list-group-item">
-                        <h5>@evt.Title</h5>
-                        <p>@evt.Description</p>
-                        <small>@evt.StartDate.ToString("dd/MM/yyyy HH:mm") - @evt.EndDate.ToString("dd/MM/yyyy HH:mm")</small>
-                    </li>
-                }
-            </ul>
-        }
-        else
-        {
-            <p class="text-muted">Nenhum evento cadastrado.</p>
-        }
-    </div>
-</div>
+<section class="events-list">
+    <h2>Próximos Eventos</h2>
+
+    @if (Model.Events == null || !Model.Events.Any())
+    {
+        <p>Nenhum evento cadastrado.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var e in Model.Events)
+            {
+                <li>
+                    <strong>@e.Title</strong>
+                    <div class="meta">
+                        @(e.StartDate.ToString("yyyy-MM-dd"))
+                        @(e.StartTime is TimeSpan st ? " " + st.ToString(@"hh\:mm") : "")
+                        @if (e.EndDate is not null)
+                        {
+                            <span> → @e.EndDate?.ToString("yyyy-MM-dd")</span>
+                        }
+                        @if (!string.IsNullOrEmpty(e.Location))
+                        {
+                            <span> · @e.Location</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(e.Description))
+                    {
+                        <div class="desc">@e.Description</div>
+                    }
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<section class="create-event">
+    <h2>Criar Evento</h2>
+    <form method="post">
+        <div>
+            <label>Título</label><br />
+            <input asp-for="Input.Title" required />
+        </div>
+        <div>
+            <label>Descrição</label><br />
+            <textarea asp-for="Input.Description"></textarea>
+        </div>
+        <div>
+            <label>Data Início</label><br />
+            <input asp-for="Input.StartDate" type="date" required />
+            <input asp-for="Input.StartTime" type="time" asp-format="{0:hh\\:mm}" />
+        </div>
+        <div>
+            <label>Data Fim</label><br />
+            <input asp-for="Input.EndDate" type="date" />
+            <input asp-for="Input.EndTime" type="time" asp-format="{0:hh\\:mm}" />
+        </div>
+        <div>
+            <label>Local</label><br />
+            <input asp-for="Input.Location" />
+        </div>
+        <div>
+            <label>
+                <input asp-for="Input.IsAllDay" type="checkbox" />
+                Dia inteiro
+            </label>
+        </div>
+        <div style="margin-top:8px;">
+            <button type="submit">Salvar</button>
+        </div>
+    </form>
+</section>
+
+<style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1 { font-size: 32px; }
+    .events-list ul { list-style: none; padding: 0; }
+    .events-list li { padding: 12px 0; border-bottom: 1px solid #eee; }
+    .events-list .meta { color: #666; font-size: 0.9em; }
+    .create-event { margin-top: 30px; max-width: 480px; }
+    input, textarea { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; }
+    button { padding: 8px 12px; }
+</style>

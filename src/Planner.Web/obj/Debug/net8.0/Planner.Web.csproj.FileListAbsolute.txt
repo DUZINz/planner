@@ -367,3 +367,5 @@ C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\obj
 C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\obj\Debug\net8.0\Planner.Web.pdb
 C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\obj\Debug\net8.0\Planner.Web.genruntimeconfig.cache
 C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\obj\Debug\net8.0\ref\Planner.Web.dll
+C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\bin\Debug\net8.0\ClientApp\package-lock.json
+C:\Users\eduar\Desktop\Projetos_github\planner-scheduler-app\src\Planner.Web\bin\Debug\net8.0\ClientApp\package.json

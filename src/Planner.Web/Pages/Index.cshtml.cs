@@ -1,25 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Planner.Web.Data;
 using Planner.Web.Models;
-using Planner.Web.Services;
 
-namespace Planner.Web.Pages;
-
-public class IndexModel : PageModel
+namespace Planner.Web.Pages
 {
-    private readonly IEventService _eventService;
-    private readonly ILogger<IndexModel> _logger;
-
-    public IndexModel(IEventService eventService, ILogger<IndexModel> logger)
+    public class IndexModel : PageModel
     {
-        _eventService = eventService;
-        _logger = logger;
-    }
+        private readonly ApplicationDbContext _db;
 
-    public IEnumerable<Event> Events { get; set; } = new List<Event>();
+        public IndexModel(ApplicationDbContext db)
+        {
+            _db = db;
+        }
 
-    public async Task OnGetAsync()
-    {
-        Events = await _eventService.GetAllEventsAsync();
+        public List<Event> Events { get; set; } = new();
+
+        [BindProperty]
+        public Event Input { get; set; } = new();
+
+        public async Task OnGetAsync()
+        {
+            // SQLite não suporta ORDER BY com TimeSpan. Ordenamos por StartDate na query
+            // e aplicamos o ThenBy(StartTime) em memória.
+            var eventsFromDb = await _db.Events
+                .OrderBy(e => e.StartDate)
+                .ToListAsync();
+
+            Events = eventsFromDb
+                .OrderBy(e => e.StartDate)
+                .ThenBy(e => e.StartTime ?? TimeSpan.Zero)
+                .ToList();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                await OnGetAsync();
+                return Page();
+            }
+
+            // Normaliza datas/hora caso necessário
+            if (Input.IsAllDay)
+            {
+                Input.StartTime = null;
+                Input.EndTime = null;
+            }
+
+            _db.Events.Add(Input);
+            await _db.SaveChangesAsync();
+
+            return RedirectToPage();
+        }
     }
 }
 

@@ -14,23 +14,13 @@ public class Event
     public string? Description { get; set; }
 
     [Required]
-    public DateTime StartDate { get; set; }
+    public DateOnly StartDate { get; set; }
 
-    [Required]
-    public DateTime EndDate { get; set; }
+    public TimeSpan? StartTime { get; set; }   // torna nullable
 
-    // Backwards-compatible aliases (usados nos testes)
-    public DateTime StartTime
-    {
-        get => StartDate;
-        set => StartDate = value;
-    }
+    public DateOnly? EndDate { get; set; }     // torna nullable
 
-    public DateTime EndTime
-    {
-        get => EndDate;
-        set => EndDate = value;
-    }
+    public TimeSpan? EndTime { get; set; }     // torna nullable
 
     public bool IsAllDay { get; set; }
 

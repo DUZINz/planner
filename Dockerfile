@@ -22,6 +22,9 @@ RUN dotnet build "Planner.Web.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "Planner.Web.csproj" -c Release -o /app/publish
 
+# copia build estático do cliente (assume que você rodou npm run build localmente)
+COPY src/Planner.Web/ClientApp/dist /app/publish/wwwroot
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
