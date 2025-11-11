@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "Hash": "4dsSXos+6eJOjkLEtbYNkJWBqcRnguYmZCO1Nv9xQVY=",
+  "Source": "Planner.Web",
+  "BasePath": "_content/Planner.Web",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Planner.Web\\wwwroot",
+      "Source": "Planner.Web",
+      "ContentRoot": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\backend\\wwwroot\\",
+      "BasePath": "_content/Planner.Web",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\backend\\wwwroot\\css\\site.css",
+      "SourceId": "Planner.Web",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\backend\\wwwroot\\",
+      "BasePath": "_content/Planner.Web",
+      "RelativePath": "css/site.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\backend\\wwwroot\\js\\site.js",
+      "SourceId": "Planner.Web",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\eduar\\Desktop\\Projetos_github\\planner-scheduler-app\\backend\\wwwroot\\",
+      "BasePath": "_content/Planner.Web",
+      "RelativePath": "js/site.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\site.js"
+    }
+  ]
+}
