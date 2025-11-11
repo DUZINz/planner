@@ -4,11 +4,14 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 export default function App() {
-  // const [count, setCount] = useState(0)
   const [events, setEvents] = useState([])
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [location, setLocation] = useState('')
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10))
   const [startTime, setStartTime] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [endTime, setEndTime] = useState('')
 
   async function loadEvents() {
     try {
@@ -29,10 +32,12 @@ export default function App() {
     e.preventDefault()
     const payload = {
       title,
+      description,
+      location,
       startDate,
       startTime: startTime ? `${startTime}:00` : null,
-      description: '',
-      location: '',
+      endDate: endDate || null,
+      endTime: endTime ? `${endTime}:00` : null,
       isAllDay: false
     }
 
@@ -44,7 +49,12 @@ export default function App() {
       })
       if (!res.ok) throw new Error('Create failed')
       setTitle('')
+      setDescription('')
+      setLocation('')
       setStartTime('')
+      setEndDate('')
+      setEndTime('')
+      setStartDate(new Date().toISOString().slice(0, 10))
       await loadEvents()
     } catch (err) {
       console.error(err)
@@ -62,45 +72,109 @@ export default function App() {
 
   return (
     <>
-      <div>
+      <div className="header-logos">
         <a href="https://vite.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
+          <img src={viteLogo} alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
+          <img src={reactLogo} alt="React logo" />
         </a>
       </div>
 
-      <h1>Planner (React)</h1>
+      <h1>📅 Planner</h1>
 
-      <div style={{ padding: 20, maxWidth: 640 }}>
-        <form onSubmit={handleCreate} style={{ marginBottom: 16 }}>
-          <div>
-            <label>Título</label><br />
-            <input value={title} onChange={e => setTitle(e.target.value)} required />
-          </div>
-          <div>
-            <label>Data</label><br />
-            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required />
-            <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <button type="submit">Criar evento</button>
-          </div>
-        </form>
+      <div className="container">
+        <div className="form-card">
+          <form onSubmit={handleCreate}>
+            <label>Título do evento *</label>
+            <input 
+              type="text"
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+              placeholder="Ex: Reunião com time"
+              required 
+            />
 
-        <h2>Eventos</h2>
-        <ul>
-          {events.length === 0 && <li>Nenhum evento</li>}
-          {events.map(ev => (
-            <li key={ev.id}>
-              <strong>{ev.title}</strong> — {ev.startDate}{ev.startTime ? ` ${ev.startTime}` : ''}
-              {ev.description && <div style={{fontSize:'0.9em',color:'#666'}}>{ev.description}</div>}
-              {ev.location && <div style={{fontSize:'0.9em',color:'#999'}}>📍 {ev.location}</div>}
-              <button onClick={() => deleteEvent(ev.id)} style={{marginLeft:8}}>Deletar</button>
-            </li>
-          ))}
-        </ul>
+            <label>Descrição</label>
+            <textarea 
+              value={description} 
+              onChange={e => setDescription(e.target.value)} 
+              placeholder="Detalhes adicionais..."
+              rows="3"
+            />
+            <label>Data inicial *</label>
+            <div className="form-row">
+              <input 
+                type="date" 
+                value={startDate} 
+                onChange={e => setStartDate(e.target.value)} 
+                required 
+              />
+              <input 
+                type="time" 
+                value={startTime} 
+                onChange={e => setStartTime(e.target.value)} 
+                placeholder="Hora"
+              />
+            </div>
+
+            <label>Data final</label>
+            <div className="form-row">
+              <input 
+                type="date" 
+                value={endDate} 
+                onChange={e => setEndDate(e.target.value)} 
+              />
+              <input 
+                type="time" 
+                value={endTime} 
+                onChange={e => setEndTime(e.target.value)} 
+                placeholder="Hora"
+              />
+            </div>
+
+            <button type="submit" className="btn-create">
+              ➕ Criar evento
+            </button>
+          </form>
+        </div>
+
+        <div className="events-section">
+          <h2>📋 Seus eventos</h2>
+          <ul className="events-list">
+            {events.length === 0 ? (
+              <li className="empty-state">
+                <div className="empty-state-icon">🎯</div>
+                <p>Nenhum evento cadastrado. Crie um novo!</p>
+              </li>
+            ) : (
+              events.map(ev => (
+                <li key={ev.id}>
+                  <div className="event-content">
+                    <strong>{ev.title}</strong>
+                    <div className="event-date">
+                      📅 {new Date(ev.startDate).toLocaleDateString('pt-BR')}
+                      {ev.startTime && ` às ${ev.startTime.slice(0, 5)}`}
+                    </div>
+                    {ev.description && (
+                      <div className="event-description">💬 {ev.description}</div>
+                    )}
+                    {ev.location && (
+                      <div className="event-location">📍 {ev.location}</div>
+                    )}
+                  </div>
+                  <button 
+                    className="btn-delete" 
+                    onClick={() => deleteEvent(ev.id)}
+                    title="Deletar evento"
+                  >
+                    🗑️ Deletar
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
       </div>
     </>
   )
