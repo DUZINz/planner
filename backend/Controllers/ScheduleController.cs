@@ -17,9 +17,15 @@ public class ScheduleController : ControllerBase
     {
         var events = await _db.Events
             .OrderBy(e => e.StartDate)
+            .ToListAsync(); // Traz para memória ANTES do ThenBy
+    
+        // Agora ordena em memória, onde TimeSpan é suportado
+        var sortedEvents = events
+            .OrderBy(e => e.StartDate)
             .ThenBy(e => e.StartTime ?? TimeSpan.Zero)
-            .ToListAsync();
-        return Ok(events);
+            .ToList();
+    
+        return Ok(sortedEvents);
     }
 
     [HttpPost]

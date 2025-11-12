@@ -67,6 +67,10 @@ button:focus-visible {
   }
 }
 
+:root {
+  color-scheme: light;
+}
+
 html,
 body {
   margin: 0;

@@ -26,11 +26,9 @@ namespace Planner.Web.Pages
 
         public async Task OnGetAsync()
         {
-            // SQLite não suporta ORDER BY com TimeSpan. Ordenamos por StartDate na query
-            // e aplicamos o ThenBy(StartTime) em memória.
             var eventsFromDb = await _db.Events
                 .OrderBy(e => e.StartDate)
-                .ToListAsync();
+                .ToListAsync(); // Traz antes do ThenBy
 
             Events = eventsFromDb
                 .OrderBy(e => e.StartDate)
