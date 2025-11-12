@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/EventsList.css'
 
@@ -7,6 +7,8 @@ export default function EventsList() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [expandedId, setExpandedId] = useState(null)
+  const expandedRef = useRef(null)
 
   async function loadEvents() {
     try {
@@ -50,8 +52,19 @@ export default function EventsList() {
       return `📅 data para tarefa dia ${startDate} até dia ${endDate}.`
     }
     
-    // Se não houver data final, mostra apenas data inicial
-    return `📅 ${startDate}`
+    // Se não houver data final, mostra tarefa para ser executada até o dia
+    return `📅 tarefa para ser executada até dia ${startDate}.`
+  }
+
+  function toggleExpand(id) {
+    setExpandedId(expandedId === id ? null : id)
+    
+    // Scroll suave para o card expandido
+    setTimeout(() => {
+      if (expandedId !== id && expandedRef.current) {
+        expandedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 0)
   }
 
   return (
@@ -85,30 +98,56 @@ export default function EventsList() {
         ) : (
           <ul className="events-list">
             {events.map(ev => (
-              <li key={ev.id} className="event-item">
-                <div className="event-content">
-                  <strong className="event-title">{ev.title}</strong>
-                  <div className="event-date">
-                    {formatEventDate(ev)}
-                  </div>
-                  {ev.description && (
-                    <div className="event-description">
-                      💬 {ev.description}
-                    </div>
-                  )}
-                  {ev.location && (
-                    <div className="event-location">
-                      📍 {ev.location}
-                    </div>
-                  )}
-                </div>
-                <button 
-                  className="btn-delete" 
-                  onClick={() => deleteEvent(ev.id)}
-                  title="Deletar evento"
+              <li 
+                key={ev.id} 
+                className={`event-item ${expandedId === ev.id ? 'expanded' : ''}`}
+                ref={expandedId === ev.id ? expandedRef : null}
+              >
+                <button
+                  className="event-button"
+                  onClick={() => toggleExpand(ev.id)}
                 >
-                  🗑️ Deletar
+                  <div className="event-content">
+                    <strong className="event-title">{ev.title}</strong>
+                    <div className="event-date">
+                      {formatEventDate(ev)}
+                    </div>
+                    {ev.location && (
+                      <div className="event-location">
+                        📍 {ev.location}
+                      </div>
+                    )}
+                  </div>
+                  <span className="expand-icon">
+                    {expandedId === ev.id ? '▼' : '▶'}
+                  </span>
                 </button>
+
+                {expandedId === ev.id && ev.description && (
+                  <div className="event-details">
+                    <div className="event-description">
+                      <strong>Descrição:</strong>
+                      <p>{ev.description}</p>
+                    </div>
+                    <button 
+                      className="btn-delete" 
+                      onClick={() => deleteEvent(ev.id)}
+                      title="Deletar evento"
+                    >
+                      🗑️ Deletar
+                    </button>
+                  </div>
+                )}
+
+                {expandedId !== ev.id && (
+                  <button 
+                    className="btn-delete" 
+                    onClick={() => deleteEvent(ev.id)}
+                    title="Deletar evento"
+                  >
+                    🗑️ Deletar
+                  </button>
+                )}
               </li>
             ))}
           </ul>
