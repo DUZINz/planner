@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/EventsList.css'
 
@@ -8,7 +8,6 @@ export default function EventsList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [expandedId, setExpandedId] = useState(null)
-  const expandedRef = useRef(null)
 
   async function loadEvents() {
     try {
@@ -46,31 +45,22 @@ export default function EventsList() {
   function formatEventDate(ev) {
     const startDate = new Date(ev.startDate).toLocaleDateString('pt-BR')
     
-    // Se houver data final, mostra intervalo
     if (ev.endDate) {
       const endDate = new Date(ev.endDate).toLocaleDateString('pt-BR')
       return `📅 data para tarefa dia ${startDate} até dia ${endDate}.`
     }
     
-    // Se não houver data final, mostra tarefa para ser executada até o dia
     return `📅 tarefa para ser executada até dia ${startDate}.`
   }
 
   function toggleExpand(id) {
     setExpandedId(expandedId === id ? null : id)
-    
-    // Scroll suave para o card expandido
-    setTimeout(() => {
-      if (expandedId !== id && expandedRef.current) {
-        expandedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 0)
   }
 
   return (
     <div className="events-page">
       <div className="events-header">
-        <h1>📋 Seus Eventos</h1>
+        <h1>📋 Suas Tarefas</h1>
         <button 
           className="btn-new-event"
           onClick={() => navigate('/create')}
@@ -101,7 +91,6 @@ export default function EventsList() {
               <li 
                 key={ev.id} 
                 className={`event-item ${expandedId === ev.id ? 'expanded' : ''}`}
-                ref={expandedId === ev.id ? expandedRef : null}
               >
                 <button
                   className="event-button"
@@ -123,12 +112,14 @@ export default function EventsList() {
                   </span>
                 </button>
 
-                {expandedId === ev.id && ev.description && (
+                {expandedId === ev.id && (
                   <div className="event-details">
-                    <div className="event-description">
-                      <strong>Descrição:</strong>
-                      <p>{ev.description}</p>
-                    </div>
+                    {ev.description && (
+                      <div className="event-description">
+                        <strong>Descrição:</strong>
+                        <p>{ev.description}</p>
+                      </div>
+                    )}
                     <button 
                       className="btn-delete" 
                       onClick={() => deleteEvent(ev.id)}
@@ -141,7 +132,7 @@ export default function EventsList() {
 
                 {expandedId !== ev.id && (
                   <button 
-                    className="btn-delete" 
+                    className="btn-delete-inline" 
                     onClick={() => deleteEvent(ev.id)}
                     title="Deletar evento"
                   >
