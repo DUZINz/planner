@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '../config' // ⬅️ ADICIONE ESTE IMPORT
 import '../styles/CreateEvent.css'
 
 export default function CreateEvent() {
@@ -21,20 +22,30 @@ export default function CreateEvent() {
       title,
       description,
       location,
-      startDate,
+      startDate: `${startDate}T00:00:00`, // ⬅️ ADICIONE HORA
       startTime: startTime ? `${startTime}:00` : null,
-      endDate: endDate || null,
+      endDate: endDate ? `${endDate}T23:59:59` : null, // ⬅️ ADICIONE HORA
       endTime: endTime ? `${endTime}:00` : null,
       isAllDay: false
     }
 
+    console.log('🔍 API_URL:', API_URL) // ⬅️ DEBUG
+    console.log('📤 Enviando:', payload) // ⬅️ DEBUG
+
     try {
-      const res = await fetch('/api/schedule', {
+      const res = await fetch(`${API_URL}/api/schedule`, { // ⬅️ USE API_URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-      if (!res.ok) throw new Error('Falha ao criar evento')
+      
+      console.log('📥 Status:', res.status) // ⬅️ DEBUG
+      
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('❌ Erro:', errorText) // ⬅️ DEBUG
+        throw new Error('Falha ao criar evento')
+      }
       
       setTitle('')
       setDescription('')
@@ -79,7 +90,6 @@ export default function CreateEvent() {
               rows="3"
             />
           </div>
-
 
           <div className="form-group">
             <label>Data inicial *</label>
