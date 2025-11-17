@@ -1,123 +1,98 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../services/api'
 import '../styles/CreateEvent.css'
 
 export default function CreateEvent() {
   const navigate = useNavigate()
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [location, setLocation] = useState('')
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10))
-  const [startTime, setStartTime] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [endTime, setEndTime] = useState('')
-  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    startDate: '',
+    endDate: ''
+  })
 
-  async function handleCreate(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     
-    const payload = {
-      title,
-      description,
-      location,
-      startDate,
-      startTime: startTime ? `${startTime}:00` : null,
-      endDate: endDate || null,
-      endTime: endTime ? `${endTime}:00` : null,
-      isAllDay: false
-    }
-
     try {
-      const res = await fetch('/api/schedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      if (!res.ok) throw new Error('Falha ao criar evento')
-      
-      setTitle('')
-      setDescription('')
-      setLocation('')
-      setStartTime('')
-      setEndDate('')
-      setEndTime('')
-      setStartDate(new Date().toISOString().slice(0, 10))
-      
+      setLoading(true)
+      await api.createEvent(formData)
+      alert('Evento criado com sucesso!')
       navigate('/events')
     } catch (err) {
-      setError(err.message)
-      console.error(err)
+      alert('Erro ao criar evento')
+      console.error('Erro ao criar evento:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
   return (
-    <div className="create-page">
-      <div className="create-container">
-        <h1>📅 Criar Novo Evento</h1>
+    <div className="create-event">
+      <h1>Criar Novo Evento</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Título</label>
+          <input
+            type="text"
+            name="title"
+            placeholder="Digite o título"
+            value={formData.title}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Descrição</label>
+          <textarea
+            name="description"
+            placeholder="Digite a descrição"
+            value={formData.description}
+            onChange={handleChange}
+            rows="4"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Data/Hora Início</label>
+          <input
+            type="datetime-local"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Data/Hora Fim</label>
+          <input
+            type="datetime-local"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Criando...' : 'Criar Evento'}
+        </button>
         
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={handleCreate} className="form-card">
-          <div className="form-group">
-            <label>Título do evento *</label>
-            <input 
-              type="text"
-              value={title} 
-              onChange={e => setTitle(e.target.value)} 
-              placeholder="Ex: Reunião com time"
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Descrição</label>
-            <textarea 
-              value={description} 
-              onChange={e => setDescription(e.target.value)} 
-              placeholder="Detalhes adicionais..."
-              rows="3"
-            />
-          </div>
-
-
-          <div className="form-group">
-            <label>Data inicial *</label>
-            <div className="form-row">
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={e => setStartDate(e.target.value)} 
-                required 
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Data final</label>
-            <div className="form-row">
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={e => setEndDate(e.target.value)} 
-              />
-            </div>
-          </div>
-
-          <div className="form-actions">
-            <button type="submit" className="btn-create">
-              ➕ Criar evento
-            </button>
-            <button 
-              type="button" 
-              className="btn-cancel"
-              onClick={() => navigate('/events')}
-            >
-              ❌ Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
+        <button type="button" onClick={() => navigate('/events')}>
+          Cancelar
+        </button>
+      </form>
     </div>
   )
 }

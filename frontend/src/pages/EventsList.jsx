@@ -1,44 +1,42 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../services/api'
 import '../styles/EventsList.css'
 
 export default function EventsList() {
   const navigate = useNavigate()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(null)
   const [expandedId, setExpandedId] = useState(null)
 
-  async function loadEvents() {
+  useEffect(() => {
+    loadEvents()
+  }, [])
+
+  const loadEvents = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/schedule')
-      if (!res.ok) throw new Error('Falha ao carregar eventos')
-      const data = await res.json()
+      setError(null)
+      const data = await api.getEvents()
       setEvents(data)
-      setError('')
     } catch (err) {
-      setError(err.message)
+      setError('Erro ao carregar eventos')
       console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    loadEvents()
-  }, [])
-
-  async function deleteEvent(id) {
-    if (!window.confirm('Tem certeza que deseja deletar este evento?')) return
+  const handleDelete = async (id) => {
+    if (!window.confirm('Deseja realmente deletar este evento?')) return
     
     try {
-      const res = await fetch(`/api/schedule/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Falha ao deletar evento')
-      await loadEvents()
+      await api.deleteEvent(id)
+      setEvents(events.filter(event => event.id !== id))
     } catch (err) {
-      setError(err.message)
-      console.error(err)
+      alert('Erro ao deletar evento')
+      console.error('Erro ao deletar:', err)
     }
   }
 
@@ -122,7 +120,7 @@ export default function EventsList() {
                     )}
                     <button 
                       className="btn-delete" 
-                      onClick={() => deleteEvent(ev.id)}
+                      onClick={() => handleDelete(ev.id)}
                       title="Deletar evento"
                     >
                       🗑️ Deletar
@@ -133,7 +131,7 @@ export default function EventsList() {
                 {expandedId !== ev.id && (
                   <button 
                     className="btn-delete-inline" 
-                    onClick={() => deleteEvent(ev.id)}
+                    onClick={() => handleDelete(ev.id)}
                     title="Deletar evento"
                   >
                     🗑️ Deletar
