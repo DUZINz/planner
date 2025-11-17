@@ -20,6 +20,8 @@ export default function EventsList() {
       setLoading(true)
       setError('')
       
+      console.log('🔍 Carregando eventos de:', `${API_URL}/api/schedule`) // DEBUG
+      
       const res = await fetch(`${API_URL}/api/schedule`)
       
       if (!res.ok) {
@@ -27,6 +29,8 @@ export default function EventsList() {
       }
       
       const data = await res.json()
+      console.log('📥 Eventos recebidos:', data) // DEBUG
+      
       setEvents(data)
     } catch (err) {
       console.error('❌ Erro:', err)
@@ -51,10 +55,20 @@ export default function EventsList() {
       }
       
       await loadEvents()
+      setSelectedDate(null)
     } catch (err) {
       console.error(err)
       alert('Erro ao deletar evento')
     }
+  }
+
+  // Normaliza data para formato YYYY-MM-DD
+  function normalizeDate(dateStr) {
+    if (!dateStr) return null
+    
+    // Remove hora se existir
+    const cleanDate = dateStr.split('T')[0]
+    return cleanDate
   }
 
   // Funções do Calendário
@@ -84,8 +98,22 @@ export default function EventsList() {
   function getEventsForDate(date) {
     if (!date) return []
     
-    const dateStr = date.toISOString().split('T')[0]
-    return events.filter(event => event.startDate === dateStr)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+    
+    console.log('🔍 Buscando eventos para:', dateStr) // DEBUG
+    
+    const filtered = events.filter(event => {
+      const eventDate = normalizeDate(event.startDate)
+      console.log('  - Evento:', event.title, '| Data:', eventDate) // DEBUG
+      return eventDate === dateStr
+    })
+    
+    console.log('✅ Eventos encontrados:', filtered.length) // DEBUG
+    
+    return filtered
   }
 
   function changeMonth(offset) {
@@ -94,6 +122,7 @@ export default function EventsList() {
       newDate.setMonth(newDate.getMonth() + offset)
       return newDate
     })
+    setSelectedDate(null)
   }
 
   function isToday(date) {
@@ -171,9 +200,12 @@ export default function EventsList() {
                     <span className="day-number">{date.getDate()}</span>
                     {hasEvents && (
                       <div className="event-indicators">
-                        {dayEvents.map((event, idx) => (
+                        {dayEvents.slice(0, 3).map((event, idx) => (
                           <span key={idx} className="event-dot" title={event.title}>•</span>
                         ))}
+                        {dayEvents.length > 3 && (
+                          <span className="event-more">+{dayEvents.length - 3}</span>
+                        )}
                       </div>
                     )}
                   </>
