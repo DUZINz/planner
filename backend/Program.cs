@@ -7,14 +7,11 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-builder.Services.AddControllersWithViews();
+// Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
-// Register services
-builder.Services.AddScoped<IEventService, EventService>();
-
-// Configure CORS para Vercel
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercel", policy =>
@@ -29,34 +26,62 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure Database - SQLite para dev, PostgreSQL para produção
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+// Configure Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+Console.WriteLine($"🔍 Environment: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"🔍 Connection String existe: {!string.IsNullOrEmpty(connectionString)}");
+
+// Se não tiver connection string, usa SQLite padrão em desenvolvimento
+if (string.IsNullOrEmpty(connectionString))
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    
     if (builder.Environment.IsDevelopment())
     {
-        // Local: SQLite
+        Console.WriteLine("⚠️ Connection string não encontrada. Usando SQLite padrão.");
+        connectionString = "Data Source=planner.db";
+    }
+    else
+    {
+        throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada em produção!");
+    }
+}
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        Console.WriteLine("📦 Usando SQLite (Development)");
         options.UseSqlite(connectionString);
     }
     else
     {
-        // Produção: PostgreSQL
+        Console.WriteLine("📦 Usando PostgreSQL (Production)");
         options.UseNpgsql(connectionString);
     }
 });
 
-// Add Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
 // Auto-migrate database on startup
-using (var scope = app.Services.CreateScope())
+try
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        Console.WriteLine("🔄 Aplicando migrations...");
+        db.Database.Migrate();
+        Console.WriteLine("✅ Migrations aplicadas com sucesso!");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"❌ Erro ao aplicar migrations: {ex.Message}");
+    if (app.Environment.IsDevelopment())
+    {
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+    }
+    throw;
 }
 
 // Serve React build se existir (ClientApp/dist)
@@ -78,23 +103,14 @@ if (Directory.Exists(clientDist))
     app.MapFallbackToFile("index.html");
 }
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-// app.UseHttpsRedirection(); // Remova esta linha
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 // USE CORS
@@ -102,10 +118,15 @@ app.UseCors("AllowVercel");
 
 app.UseAuthorization();
 
-app.MapControllers();
 app.MapRazorPages();
+app.MapControllers();
 
 // Health check endpoint
-app.MapGet("/healthz", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+app.MapGet("/healthz", () => Results.Ok(new 
+{ 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+}));
 
 app.Run();
