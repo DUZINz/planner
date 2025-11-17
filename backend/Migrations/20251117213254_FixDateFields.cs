@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -7,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Planner.Web.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreatePostgreSQL : Migration
+    public partial class FixDateFields : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,10 +19,10 @@ namespace Planner.Web.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    EndDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    EndTime = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    StartDate = table.Column<string>(type: "text", nullable: false),
+                    StartTime = table.Column<string>(type: "text", nullable: true),
+                    EndDate = table.Column<string>(type: "text", nullable: true),
+                    EndTime = table.Column<string>(type: "text", nullable: true),
                     IsAllDay = table.Column<bool>(type: "boolean", nullable: false),
                     Location = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },

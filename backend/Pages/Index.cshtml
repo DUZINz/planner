@@ -1,92 +1,71 @@
 @page
 @model Planner.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Planner Scheduler";
+    ViewData["Title"] = "Planner";
 }
 
-<h1>Planner Scheduler</h1>
-<p>Gerencie suas tarefas</p>
-
-<section class="events-list">
-    <h2>Próximos Eventos</h2>
-
-    @if (Model.Events == null || !Model.Events.Any())
-    {
-        <p>Nenhum evento cadastrado.</p>
-    }
-    else
-    {
-        <ul>
-            @foreach (var e in Model.Events)
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Planner - Agenda</h1>
+        
+        <div class="events-list">
+            @if (Model.Events != null && Model.Events.Any())
             {
-                <li>
-                    <strong>@e.Title</strong>
-                    <div class="meta">
-                        @(e.StartDate.ToString("yyyy-MM-dd"))
-                        @(e.StartTime is TimeSpan st ? " " + st.ToString(@"hh\:mm") : "")
-                        @if (e.EndDate is not null)
+                foreach (var evt in Model.Events)
+                {
+                    <div class="event-card">
+                        <h3>@evt.Title</h3>
+                        
+                        @if (!string.IsNullOrEmpty(evt.Description))
                         {
-                            <span> → @e.EndDate?.ToString("yyyy-MM-dd")</span>
+                            <p>@evt.Description</p>
                         }
-                        @if (!string.IsNullOrEmpty(e.Location))
+                        
+                        <div class="event-dates">
+                            <strong>📅 Data:</strong> @evt.StartDate
+                            
+                            @if (!string.IsNullOrEmpty(evt.StartTime))
+                            {
+                                <span>às @evt.StartTime</span>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(evt.EndDate))
+                            {
+                                <span>até @evt.EndDate</span>
+                                
+                                @if (!string.IsNullOrEmpty(evt.EndTime))
+                                {
+                                    <span>às @evt.EndTime</span>
+                                }
+                            }
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(evt.Location))
                         {
-                            <span> · @e.Location</span>
+                            <div class="event-location">
+                                <strong>📍 Local:</strong> @evt.Location
+                            </div>
                         }
                     </div>
-                    @if (!string.IsNullOrEmpty(e.Description))
-                    {
-                        <div class="desc">@e.Description</div>
-                    }
-                </li>
+                }
             }
-        </ul>
-    }
-</section>
-
-<section class="create-event">
-    <h2>Criar Evento</h2>
-    <form method="post">
-        <div>
-            <label>Título</label><br />
-            <input asp-for="Input.Title" required />
+            else
+            {
+                <p class="no-events">Nenhum evento cadastrado.</p>
+            }
         </div>
-        <div>
-            <label>Descrição</label><br />
-            <textarea asp-for="Input.Description"></textarea>
+        
+        <div class="actions">
+            <a href="/api/schedule" class="btn">Ver API JSON</a>
         </div>
-        <div>
-            <label>Data Início</label><br />
-            <input asp-for="Input.StartDate" type="date" required />
-            <input asp-for="Input.StartTime" type="time" asp-format="{0:hh\\:mm}" />
-        </div>
-        <div>
-            <label>Data Fim</label><br />
-            <input asp-for="Input.EndDate" type="date" />
-            <input asp-for="Input.EndTime" type="time" asp-format="{0:hh\\:mm}" />
-        </div>
-        <div>
-            <label>Local</label><br />
-            <input asp-for="Input.Location" />
-        </div>
-        <div>
-            <label>
-                <input asp-for="Input.IsAllDay" type="checkbox" />
-                Dia inteiro
-            </label>
-        </div>
-        <div style="margin-top:8px;">
-            <button type="submit">Salvar</button>
-        </div>
-    </form>
-</section>
-
-<style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    h1 { font-size: 32px; }
-    .events-list ul { list-style: none; padding: 0; }
-    .events-list li { padding: 12px 0; border-bottom: 1px solid #eee; }
-    .events-list .meta { color: #666; font-size: 0.9em; }
-    .create-event { margin-top: 30px; max-width: 480px; }
-    input, textarea { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; }
-    button { padding: 8px 12px; }
-</style>
+    </div>
+</body>
+</html>

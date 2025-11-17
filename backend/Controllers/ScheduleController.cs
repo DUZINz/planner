@@ -2,49 +2,92 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Planner.Web.Data;
 using Planner.Web.Models;
+using Microsoft.Extensions.Logging;
 
-namespace Planner.Web.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ScheduleController : ControllerBase
+namespace Planner.Web.Controllers
 {
-    private readonly ApplicationDbContext _db;
-    public ScheduleController(ApplicationDbContext db) => _db = db;
-
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ScheduleController : ControllerBase
     {
-        var events = await _db.Events
-            .OrderBy(e => e.StartDate)
-            .ToListAsync(); // Traz para memória ANTES do ThenBy
-    
-        // Agora ordena em memória, onde TimeSpan é suportado
-        var sortedEvents = events
-            .OrderBy(e => e.StartDate)
-            .ThenBy(e => e.StartTime ?? TimeSpan.Zero)
-            .ToList();
-    
-        return Ok(sortedEvents);
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<ScheduleController> _logger;
 
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Event model)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        _db.Events.Add(model);
-        await _db.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
-    }
+        public ScheduleController(ApplicationDbContext context, ILogger<ScheduleController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var ev = await _db.Events.FindAsync(id);
-        if (ev == null) return NotFound();
-        
-        _db.Events.Remove(ev);
-        await _db.SaveChangesAsync();
-        return NoContent();
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        {
+            try
+            {
+                var events = await _context.Events
+                    .OrderBy(e => e.StartDate)
+                    .ToListAsync();
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao buscar eventos");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Event>> CreateEvent([FromBody] Event newEvent)
+        {
+            try
+            {
+                _logger.LogInformation("Criando evento: {Title}", newEvent.Title);
+                
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                _context.Events.Add(newEvent);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Evento criado com ID: {Id}", newEvent.Id);
+                return CreatedAtAction(nameof(GetEvent), new { id = newEvent.Id }, newEvent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar evento");
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Event>> GetEvent(int id)
+        {
+            var evt = await _context.Events.FindAsync(id);
+            
+            if (evt == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(evt);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            var evt = await _context.Events.FindAsync(id);
+            
+            if (evt == null)
+            {
+                return NotFound();
+            }
+
+            _context.Events.Remove(evt);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

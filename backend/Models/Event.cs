@@ -1,24 +1,33 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Planner.Web.Models;
-
-public class Event
+namespace Planner.Web.Models
 {
-    public int Id { get; set; }
+    public class Event
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
-    public string? Title { get; set; }
+        [Required]
+        [MaxLength(200)]
+        public string Title { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
+        [MaxLength(1000)]
+        public string? Description { get; set; }
 
-    public DateOnly StartDate { get; set; }
+        [Required]
+        public string StartDate { get; set; } = string.Empty; // ⬅️ STRING
 
-    public TimeSpan? StartTime { get; set; }
+        public string? StartTime { get; set; }
 
-    public DateOnly? EndDate { get; set; }
+        public string? EndDate { get; set; }
 
-    public TimeSpan? EndTime { get; set; }
+        public string? EndTime { get; set; }
 
-    public bool IsAllDay { get; set; }
+        public bool IsAllDay { get; set; }
 
-    public string? Location { get; set; }
+        [MaxLength(200)]
+        public string? Location { get; set; }
+    }
 }

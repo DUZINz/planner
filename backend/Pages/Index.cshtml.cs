@@ -12,49 +12,20 @@ namespace Planner.Web.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _context;
 
-        public IndexModel(ApplicationDbContext db)
+        public IndexModel(ApplicationDbContext context)
         {
-            _db = db;
+            _context = context;
         }
 
         public List<Event> Events { get; set; } = new();
 
-        [BindProperty]
-        public Event Input { get; set; } = new();
-
         public async Task OnGetAsync()
         {
-            var eventsFromDb = await _db.Events
+            Events = await _context.Events
                 .OrderBy(e => e.StartDate)
-                .ToListAsync(); // Traz antes do ThenBy
-
-            Events = eventsFromDb
-                .OrderBy(e => e.StartDate)
-                .ThenBy(e => e.StartTime ?? TimeSpan.Zero)
-                .ToList();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                await OnGetAsync();
-                return Page();
-            }
-
-            // Normaliza datas/hora caso necessário
-            if (Input.IsAllDay)
-            {
-                Input.StartTime = null;
-                Input.EndTime = null;
-            }
-
-            _db.Events.Add(Input);
-            await _db.SaveChangesAsync();
-
-            return RedirectToPage();
+                .ToListAsync();
         }
     }
 }
