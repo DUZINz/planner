@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Planner.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fa190996be61892991ce58135b355d4087c8fb1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57bb69d0e64a38bfb350cdf4c2ea43683cf919a8")]
 [assembly: System.Reflection.AssemblyProductAttribute("Planner.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Planner.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
