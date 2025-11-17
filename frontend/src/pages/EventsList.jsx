@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '../config' // ⬅️ IMPORTANTE!
 import '../styles/EventsList.css'
 
 export default function EventsList() {
@@ -7,143 +8,135 @@ export default function EventsList() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [expandedId, setExpandedId] = useState(null)
-
-  async function loadEvents() {
-    try {
-      setLoading(true)
-      const res = await fetch('/api/schedule')
-      if (!res.ok) throw new Error('Falha ao carregar eventos')
-      const data = await res.json()
-      setEvents(data)
-      setError('')
-    } catch (err) {
-      setError(err.message)
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     loadEvents()
   }, [])
 
-  async function deleteEvent(id) {
-    if (!window.confirm('Tem certeza que deseja deletar este evento?')) return
-    
+  async function loadEvents() {
     try {
-      const res = await fetch(`/api/schedule/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Falha ao deletar evento')
+      setLoading(true)
+      setError('')
+      
+      console.log('🔍 API_URL:', API_URL) // ⬅️ DEBUG
+      
+      const res = await fetch(`${API_URL}/api/schedule`) // ⬅️ USE API_URL
+      
+      console.log('📥 Status:', res.status) // ⬅️ DEBUG
+      
+      if (!res.ok) {
+        throw new Error('Falha ao carregar eventos')
+      }
+      
+      const data = await res.json()
+      console.log('✅ Eventos:', data) // ⬅️ DEBUG
+      
+      setEvents(data)
+    } catch (err) {
+      console.error('❌ Erro:', err)
+      setError('Falha ao carregar eventos')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm('Deseja realmente deletar este evento?')) {
+      return
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/schedule/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!res.ok) {
+        throw new Error('Falha ao deletar evento')
+      }
+      
       await loadEvents()
     } catch (err) {
-      setError(err.message)
       console.error(err)
+      alert('Erro ao deletar evento')
     }
   }
 
-  function formatEventDate(ev) {
-    const startDate = new Date(ev.startDate).toLocaleDateString('pt-BR')
-    
-    if (ev.endDate) {
-      const endDate = new Date(ev.endDate).toLocaleDateString('pt-BR')
-      return `📅 data para tarefa dia ${startDate} até dia ${endDate}.`
-    }
-    
-    return `📅 tarefa para ser executada até dia ${startDate}.`
-  }
-
-  function toggleExpand(id) {
-    setExpandedId(expandedId === id ? null : id)
+  if (loading) {
+    return (
+      <div className="events-page">
+        <div className="loading">Carregando eventos...</div>
+      </div>
+    )
   }
 
   return (
     <div className="events-page">
       <div className="events-header">
-        <h1>📋 Suas Tarefas</h1>
+        <h1>📅 Meus Eventos</h1>
         <button 
           className="btn-new-event"
           onClick={() => navigate('/create')}
         >
-          ➕ Novo Evento
+          ➕ Criar Novo Evento
         </button>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="events-container">
-        {loading ? (
-          <div className="loading">Carregando eventos...</div>
-        ) : events.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">🎯</div>
-            <p>Nenhum evento cadastrado</p>
-            <button 
-              className="btn-create-first"
-              onClick={() => navigate('/create')}
-            >
-              Criar o primeiro evento
-            </button>
-          </div>
-        ) : (
-          <ul className="events-list">
-            {events.map(ev => (
-              <li 
-                key={ev.id} 
-                className={`event-item ${expandedId === ev.id ? 'expanded' : ''}`}
-              >
-                <button
-                  className="event-button"
-                  onClick={() => toggleExpand(ev.id)}
+      {events.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">🎯</div>
+          <p>Nenhum evento cadastrado</p>
+          <button 
+            className="btn-create-first"
+            onClick={() => navigate('/create')}
+          >
+            Criar o primeiro evento
+          </button>
+        </div>
+      ) : (
+        <div className="events-grid">
+          {events.map(event => (
+            <div key={event.id} className="event-card">
+              <div className="event-header">
+                <h3>{event.title}</h3>
+                <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(event.id)}
+                  title="Deletar evento"
                 >
-                  <div className="event-content">
-                    <strong className="event-title">{ev.title}</strong>
-                    <div className="event-date">
-                      {formatEventDate(ev)}
-                    </div>
-                    {ev.location && (
-                      <div className="event-location">
-                        📍 {ev.location}
-                      </div>
-                    )}
-                  </div>
-                  <span className="expand-icon">
-                    {expandedId === ev.id ? '▼' : '▶'}
-                  </span>
+                  🗑️
                 </button>
+              </div>
 
-                {expandedId === ev.id && (
-                  <div className="event-details">
-                    {ev.description && (
-                      <div className="event-description">
-                        <strong>Descrição:</strong>
-                        <p>{ev.description}</p>
-                      </div>
-                    )}
-                    <button 
-                      className="btn-delete" 
-                      onClick={() => deleteEvent(ev.id)}
-                      title="Deletar evento"
-                    >
-                      🗑️ Deletar
-                    </button>
-                  </div>
-                )}
+              {event.description && (
+                <p className="event-description">{event.description}</p>
+              )}
 
-                {expandedId !== ev.id && (
-                  <button 
-                    className="btn-delete-inline" 
-                    onClick={() => deleteEvent(ev.id)}
-                    title="Deletar evento"
-                  >
-                    🗑️ Deletar
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              <div className="event-date">
+                <span className="date-icon">📅</span>
+                <span>{event.startDate}</span>
+                {event.startTime && <span className="time">às {event.startTime}</span>}
+              </div>
+
+              {event.endDate && (
+                <div className="event-date">
+                  <span className="date-icon">🏁</span>
+                  <span>{event.endDate}</span>
+                  {event.endTime && <span className="time">às {event.endTime}</span>}
+                </div>
+              )}
+
+              {event.location && (
+                <div className="event-location">
+                  <span className="location-icon">📍</span>
+                  <span>{event.location}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
