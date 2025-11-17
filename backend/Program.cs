@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Planner.Web.Data;
-using Planner.Web.Services;
-using Microsoft.Extensions.FileProviders;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders; // ⬅️ ADICIONAR
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +32,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 Console.WriteLine($"🔍 Environment: {builder.Environment.EnvironmentName}");
 Console.WriteLine($"🔍 Connection String existe: {!string.IsNullOrEmpty(connectionString)}");
 
-// Se não tiver connection string, usa SQLite padrão em desenvolvimento
 if (string.IsNullOrEmpty(connectionString))
 {
     if (builder.Environment.IsDevelopment())
@@ -44,6 +43,13 @@ if (string.IsNullOrEmpty(connectionString))
     {
         throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada em produção!");
     }
+}
+
+// Converter PostgreSQL URI para formato Npgsql
+if (builder.Environment.IsProduction() && connectionString.StartsWith("postgresql://"))
+{
+    connectionString = ConvertPostgresUri(connectionString);
+    Console.WriteLine("🔄 Connection string convertida para formato Npgsql");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -69,14 +75,23 @@ try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
-        Console.WriteLine("🔄 Aplicando migrations...");
-        db.Database.Migrate();
-        Console.WriteLine("✅ Migrations aplicadas com sucesso!");
+        if (builder.Environment.IsDevelopment())
+        {
+            Console.WriteLine("🔄 Verificando banco de dados...");
+            db.Database.EnsureCreated();
+            Console.WriteLine("✅ Banco de dados OK!");
+        }
+        else
+        {
+            Console.WriteLine("🔄 Aplicando migrations...");
+            db.Database.Migrate();
+            Console.WriteLine("✅ Migrations aplicadas com sucesso!");
+        }
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ Erro ao aplicar migrations: {ex.Message}");
+    Console.WriteLine($"❌ Erro no banco de dados: {ex.Message}");
     if (app.Environment.IsDevelopment())
     {
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
@@ -130,3 +145,19 @@ app.MapGet("/healthz", () => Results.Ok(new
 }));
 
 app.Run();
+
+// Helper: Converter PostgreSQL URI para formato Npgsql
+static string ConvertPostgresUri(string uri)
+{
+    var match = Regex.Match(uri, @"postgresql://(?<user>[^:]+):(?<pass>[^@]+)@(?<host>[^/]+)/(?<db>.+)");
+    
+    if (!match.Success)
+        throw new InvalidOperationException("Formato de URI PostgreSQL inválido");
+    
+    var user = match.Groups["user"].Value;
+    var pass = match.Groups["pass"].Value;
+    var host = match.Groups["host"].Value;
+    var db = match.Groups["db"].Value;
+    
+    return $"Host={host};Database={db};Username={user};Password={pass};Port=5432;SSL Mode=Require;Trust Server Certificate=true";
+}
