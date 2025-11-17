@@ -14,7 +14,7 @@ public class Event
 
     public TimeSpan? StartTime { get; set; }
 
-    public DateOnly? EndDate { get; set; }        // <-- já deve ser nullable
+    public DateOnly? EndDate { get; set; }
 
     public TimeSpan? EndTime { get; set; }
 
